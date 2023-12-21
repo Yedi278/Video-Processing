@@ -21,6 +21,8 @@ def render(cap,out,n_processes=2,skip_frames=2):
 
     while 1:
         
+        if counter ==1 : break
+
 
         if cv2.waitKey(1) == ord('q'):   # exit the program
             break
@@ -53,7 +55,7 @@ def render(cap,out,n_processes=2,skip_frames=2):
         processes = list()
 
         for i in range(n_processes):
-
+            
             p = Process(target=func, args=(frame,oldFrame,t_np, range(i*k,(i+1)*k),range(frame_width)))
             processes.append(p)
             p.start()
@@ -61,19 +63,16 @@ def render(cap,out,n_processes=2,skip_frames=2):
         for i in range(n_processes):
             processes[i].join()
 
-        # print(t_np)
         out.write(t_np)
 
         oldFrame[:] = frame
 
-        # grey = cv2.cvtColor(t_np, cv2.COLOR_BGR2GRAY)
         cv2.imshow('frame', t_np)
         
         counter += 1
 
     cap.release()
     cv2.destroyAllWindows()
-
 
 def func(frame,oldFrame,tmp,xlim,ylim):
 
@@ -84,19 +83,21 @@ def func(frame,oldFrame,tmp,xlim,ylim):
 
                     tmp[x,y,0] = 0
                     tmp[x,y,1] = 0
-                    tmp[x,y,2] = oldFrame[x,y]-frame[x,y]
+                    tmp[x,y,2] = abs(oldFrame[x,y]-frame[x,y])
 
-                # for i in range(3):
-                    
-                #     tmp[x,y,i] = abs(oldFrame[x,y,i]-frame[x,y,i])
 
 
 
 if __name__ == '__main__':
 
-    cap = cv2.VideoCapture(path_input)
-    # cap = cv2.VideoCapture(0)
+    a = 0
 
+    if a == 0:
+        cap = cv2.VideoCapture(0)
+    elif a == 1:
+        cap = cv2.VideoCapture(path_input)
+    else:
+        raise Exception("Wrong Input")
     frame_width = int(cap.get(3))
     frame_height = int(cap.get(4))
     
