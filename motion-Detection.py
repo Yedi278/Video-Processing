@@ -4,8 +4,8 @@ import numpy as np
 import ctypes as c
 from multiprocessing import Process,RawArray
 
-path_input  = "test1.mp4"
-path_output = "output.mp4"
+path_input  = "test.mp4"
+path_output = "output.avi"
 
 def render(cap,out,n_processes=2,skip_frames=2):
 
@@ -100,7 +100,7 @@ if __name__ == '__main__':
     frame_width = int(cap.get(3))
     frame_height = int(cap.get(4))
     
-    out = cv2.VideoWriter(path_output,cv2.VideoWriter_fourcc('m', 'p', '4', 'v'), cap.get(5), (frame_width,frame_height))
+    out = cv2.VideoWriter(path_output,cv2.VideoWriter_fourcc(*'XVID'), cap.get(5), (frame_width,frame_height))
 
     n_proces = 2
     skip_frames = 0
