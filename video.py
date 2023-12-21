@@ -74,12 +74,12 @@ def func(frame,oldFrame,tmp,xlim,ylim):
     for x in xlim:
             for y in ylim:
 
-                if abs(oldFrame[x,y]-frame[x,y]) > 3:
-                    tmp[x,y] = 255
+                # if abs(oldFrame[x,y]-frame[x,y]) > 3:
+                #     tmp[x,y] = 255
 
-                # for i in range(3):
+                for i in range(3):
                     
-                #     tmp[x,y,i] = abs(oldFrame[x,y,i]-frame[x,y,i])
+                    tmp[x,y,i] = abs(oldFrame[x,y,i]-frame[x,y,i])
 
 
 
