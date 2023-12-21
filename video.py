@@ -15,10 +15,10 @@ def render(cap,out,n_processes=2):
     frame_width = int(cap.get(3))
     frame_height = int(cap.get(4))
 
-    oldFrame = np.zeros((frame_height,frame_width,3))
+    oldFrame = np.zeros((frame_height,frame_width))
     
-    t = RawArray(c.c_uint8, (frame_height*frame_width*3))
-    t_np = np.frombuffer(t,dtype=np.uint8).reshape((frame_height,frame_width,3))
+    t = RawArray(c.c_uint8, (frame_height*frame_width*1))
+    t_np = np.frombuffer(t,dtype=np.uint8).reshape((frame_height,frame_width))
 
     counter = 0
 
@@ -32,7 +32,7 @@ def render(cap,out,n_processes=2):
 
         ret, frame = cap.read() 
 
-        gray = cv.cvtColor(frame,cv.COLOR_BGR2GRAY)
+        frame = cv.cvtColor(frame,cv.COLOR_BGR2GRAY)
 
         if not ret:             # if frame is read correctly ret is True
             print("Can't receive frame (stream end?). Exiting ...")
@@ -42,10 +42,9 @@ def render(cap,out,n_processes=2):
 
         np.copyto(t_np,tmp)
 
-        processes = list()
 
         k = int(frame_height/n_processes)
-
+        processes = list()
         for i in range(n_processes):
 
             p = Process(target=func, args=(frame,oldFrame,t_np, range(i*k,(i+1)*k),range(frame_width)))
@@ -60,7 +59,7 @@ def render(cap,out,n_processes=2):
         oldFrame[:] = frame
 
         # grey = cv.cvtColor(t_np, cv.COLOR_BGR2GRAY)
-        # cv.imshow('frame', grey)
+        cv.imshow('frame', t_np)
         
         counter += 1
 
@@ -70,16 +69,16 @@ def render(cap,out,n_processes=2):
 
 def func(frame,oldFrame,tmp,xlim,ylim):
 
-    print(frame)
     for x in xlim:
             for y in ylim:
 
                 # if abs(oldFrame[x,y]-frame[x,y]) > 3:
-                #     tmp[x,y] = 255
 
-                for i in range(3):
+                tmp[x,y] = oldFrame[x,y]-frame[x,y]
+
+                # for i in range(3):
                     
-                    tmp[x,y,i] = abs(oldFrame[x,y,i]-frame[x,y,i])
+                #     tmp[x,y,i] = abs(oldFrame[x,y,i]-frame[x,y,i])
 
 
 
