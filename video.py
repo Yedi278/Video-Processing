@@ -7,8 +7,8 @@ from multiprocessing import Process,RawArray
 
 import time
 
-path_input  = r"/home/peppo/Documents/Video_processing/test.mp4"
-path_output = r"/home/peppo/Documents/Video_processing/output.avi"
+path_input  = "test1.mp4"
+path_output = "output.mp4"
 
 def render(cap,out,n_processes=2):
 
@@ -22,10 +22,10 @@ def render(cap,out,n_processes=2):
 
     counter = 0
 
-    while cap.isOpened():
+    while 1:
 
-        if counter >= 20:
-            break
+        # if counter >= 20:
+        #     break
 
         if cv.waitKey(1) == ord('q'):   # exit the program
             break
@@ -33,6 +33,10 @@ def render(cap,out,n_processes=2):
         ret, frame = cap.read() 
 
         frame = cv.cvtColor(frame,cv.COLOR_BGR2GRAY)
+
+        if counter == 3:
+            counter = 0
+            continue
 
         if not ret:             # if frame is read correctly ret is True
             print("Can't receive frame (stream end?). Exiting ...")
@@ -45,6 +49,7 @@ def render(cap,out,n_processes=2):
 
         k = int(frame_height/n_processes)
         processes = list()
+
         for i in range(n_processes):
 
             p = Process(target=func, args=(frame,oldFrame,t_np, range(i*k,(i+1)*k),range(frame_width)))
@@ -72,9 +77,9 @@ def func(frame,oldFrame,tmp,xlim,ylim):
     for x in xlim:
             for y in ylim:
 
-                # if abs(oldFrame[x,y]-frame[x,y]) > 3:
+                if abs(oldFrame[x,y]-frame[x,y]) > 10:
 
-                tmp[x,y] = oldFrame[x,y]-frame[x,y]
+                    tmp[x,y] = oldFrame[x,y]-frame[x,y]
 
                 # for i in range(3):
                     
@@ -93,9 +98,9 @@ if __name__ == '__main__':
 
     n = 2
 
-    a = time.time()
+    # a = time.time()
     render(cap,out,n)
-    b = time.time()
+    # b = time.time()
 
-    print(f"Number of processes:\t{n}")
-    print("execution Time:\t",b-a)
+    # print(f"Number of processes:\t{n}")
+    # print("execution Time:\t",b-a)
