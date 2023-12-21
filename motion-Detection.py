@@ -100,7 +100,7 @@ if __name__ == '__main__':
     frame_width = int(cap.get(3))
     frame_height = int(cap.get(4))
     
-    out = cv2.VideoWriter(path_output,cv2.VideoWriter_fourcc('m', 'p', '4', 'v'), cap.get(5), (frame_height,frame_width))
+    out = cv2.VideoWriter(path_output,cv2.VideoWriter_fourcc('m', 'p', '4', 'v'), cap.get(5), (frame_width,frame_height))
 
     n_proces = 2
     skip_frames = 0
