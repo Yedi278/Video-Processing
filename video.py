@@ -1,4 +1,4 @@
-import cv2 as cv
+import cv2
 import numpy as np
 from numpy.ctypeslib import as_ctypes
 
@@ -10,15 +10,15 @@ import time
 path_input  = "test1.mp4"
 path_output = "output.mp4"
 
-def render(cap,out,n_processes=2):
+def render(cap,out,n_processes=2,skip_frames=2):
 
     frame_width = int(cap.get(3))
     frame_height = int(cap.get(4))
 
     oldFrame = np.zeros((frame_height,frame_width))
     
-    t = RawArray(c.c_uint8, (frame_height*frame_width*1))
-    t_np = np.frombuffer(t,dtype=np.uint8).reshape((frame_height,frame_width))
+    t = RawArray(c.c_uint8, (frame_height*frame_width*3))
+    t_np = np.frombuffer(t,dtype=np.uint8).reshape((frame_height,frame_width,3))
 
     counter = 0
 
@@ -27,14 +27,14 @@ def render(cap,out,n_processes=2):
         # if counter >= 20:
         #     break
 
-        if cv.waitKey(1) == ord('q'):   # exit the program
+        if cv2.waitKey(1) == ord('q'):   # exit the program
             break
 
         ret, frame = cap.read() 
 
-        frame = cv.cvtColor(frame,cv.COLOR_BGR2GRAY)
+        frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
 
-        if counter == 3:
+        if counter == skip_frames:
             counter = 0
             continue
 
@@ -42,7 +42,7 @@ def render(cap,out,n_processes=2):
             print("Can't receive frame (stream end?). Exiting ...")
             break
         
-        tmp = np.zeros(frame.shape,dtype=np.uint8)
+        tmp = np.zeros((frame.shape[0],frame.shape[1],3),dtype=np.uint8)
 
         np.copyto(t_np,tmp)
 
@@ -63,13 +63,13 @@ def render(cap,out,n_processes=2):
 
         oldFrame[:] = frame
 
-        # grey = cv.cvtColor(t_np, cv.COLOR_BGR2GRAY)
-        cv.imshow('frame', t_np)
+        # grey = cv2.cvtColor(t_np, cv2.COLOR_BGR2GRAY)
+        cv2.imshow('frame', t_np)
         
         counter += 1
 
     cap.release()
-    cv.destroyAllWindows()
+    cv2.destroyAllWindows()
 
 
 def func(frame,oldFrame,tmp,xlim,ylim):
@@ -79,7 +79,9 @@ def func(frame,oldFrame,tmp,xlim,ylim):
 
                 if abs(oldFrame[x,y]-frame[x,y]) > 10:
 
-                    tmp[x,y] = oldFrame[x,y]-frame[x,y]
+                    tmp[x,y,0] = 0
+                    tmp[x,y,1] = oldFrame[x,y]-frame[x,y]
+                    tmp[x,y,2] = 0
 
                 # for i in range(3):
                     
@@ -89,17 +91,19 @@ def func(frame,oldFrame,tmp,xlim,ylim):
 
 if __name__ == '__main__':
 
-    cap = cv.VideoCapture(path_input)
+    cap = cv2.VideoCapture(path_input)
+    # cap = cv2.VideoCapture(0)
 
     frame_width = int(cap.get(3))
     frame_height = int(cap.get(4))
     
-    out = cv.VideoWriter(path_output,cv.VideoWriter_fourcc(*'MJPG'), 10, (frame_width,frame_height))
+    out = cv2.VideoWriter(path_output,cv2.VideoWriter_fourcc('m', 'p', '4', 'v'), cap.get(5), (frame_height,frame_width))
 
-    n = 2
+    n_proces = 3
+    skip_frames = -1
 
     # a = time.time()
-    render(cap,out,n)
+    render(cap,out,n_proces,skip_frames)
     # b = time.time()
 
     # print(f"Number of processes:\t{n}")
