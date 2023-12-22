@@ -21,7 +21,7 @@ def render(cap,out,n_processes=2,skip_frames=2):
 
     while 1:
         
-        if counter ==1 : break
+        # if counter ==1 : break
 
 
         if cv2.waitKey(1) == ord('q'):   # exit the program
@@ -90,7 +90,7 @@ def func(frame,oldFrame,tmp,xlim,ylim):
 
 if __name__ == '__main__':
 
-    a = 0
+    a = 1
 
     if a == 0:
         cap = cv2.VideoCapture(0)
